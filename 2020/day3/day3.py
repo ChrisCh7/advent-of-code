@@ -32,11 +32,13 @@ def main(right, down, print_slope):
             current_y += down
         print('Open squares: ' + str(open_square_count))
         print('Trees: ' + str(tree_count))
+        return tree_count
 
 
 if __name__ == '__main__':
-    main(1, 1, False)
-    main(3, 1, False)
-    main(5, 1, False)
-    main(7, 1, False)
-    main(1, 2, False)
+    tree_count1 = main(1, 1, False)
+    tree_count2 = main(3, 1, False)
+    tree_count3 = main(5, 1, False)
+    tree_count4 = main(7, 1, False)
+    tree_count5 = main(1, 2, False)
+    print('Answer part2:', tree_count1 * tree_count2 * tree_count3 * tree_count4 * tree_count5)
