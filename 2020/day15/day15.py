@@ -8,11 +8,10 @@ def main(numbers, end):
 
         if len(info_nr) == 0:
             next_nr = 0
-            spoken[last_nr_spoken] = [len(numbers) - 1]
         else:
-            next_nr = len(numbers) - 1 - spoken[last_nr_spoken][-1]
-            spoken[last_nr_spoken].append(len(numbers) - 1)
+            next_nr = len(numbers) - 1 - spoken[last_nr_spoken][0]
 
+        spoken[last_nr_spoken] = [len(numbers) - 1]
         numbers.append(next_nr)
 
     print(numbers[-1])
