@@ -96,13 +96,8 @@ if __name__ == '__main__':
 
     for part in parts[1:]:
         board_rows = part.splitlines()
-        board = [[int(n) for n in row.split()] for row in board_rows]
+        board = [[[int(n), False] for n in row.split()] for row in board_rows]
         boards.append(board)
-
-    for i, board in enumerate(boards):
-        for j, row in enumerate(board):
-            for k, nr in enumerate(row):
-                boards[i][j][k] = [nr, False]
 
     part1(drawn_numbers, boards)
     part2(drawn_numbers, boards)
