@@ -3,49 +3,23 @@ open System.IO
 let lines =
     File.ReadAllLines("in.txt")
     |> Array.toList
-    |> List.map (fun instr ->
-        [ (instr.Split " ").[0]
-          (instr.Split " ").[1] ])
+    |> List.map (fun instr -> ((instr.Split " ").[0], (instr.Split " ").[1] |> int))
 
-let part1 (instructions: string list list) =
-    let mutable pos = [ 0; 0 ]
+let rec part1 =
+    function
+    | ((a, b), []) -> a * b
+    | ((a, b), ("forward", x) :: xs) -> part1 ((a + x, b), xs)
+    | ((a, b), ("down", x) :: xs) -> part1 ((a, b + x), xs)
+    | ((a, b), ("up", x) :: xs) -> part1 ((a, b - x), xs)
+    | _ -> 0
 
-    List.iter
-        (fun instr ->
-            match instr with
-            | [ "forward"; x ] -> pos <- [ pos.[0] + (x |> int); pos.[1] ]
-            | [ "down"; x ] -> pos <- [ pos.[0]; pos.[1] + (x |> int) ]
-            | [ "up"; x ] -> pos <- [ pos.[0]; pos.[1] - (x |> int) ]
-            | _ -> ())
-        instructions
+let rec part2 =
+    function
+    | ((a, b, _), []) -> a * b
+    | ((a, b, c), ("forward", x) :: xs) -> part2 ((a + x, b + c * x, c), xs)
+    | ((a, b, c), ("down", x) :: xs) -> part2 ((a, b, c + x), xs)
+    | ((a, b, c), ("up", x) :: xs) -> part2 ((a, b, c - x), xs)
+    | _ -> 0
 
-    printfn "Part 1: %A" (pos.[0] * pos.[1])
-
-let part2 (instructions: string list list) =
-    let mutable pos = [ 0; 0; 0 ]
-
-    List.iter
-        (fun instr ->
-            match instr with
-            | [ "forward"; x ] ->
-                pos <-
-                    [ pos.[0] + (x |> int)
-                      pos.[1] + pos.[2] * (x |> int)
-                      pos.[2] ]
-            | [ "down"; x ] ->
-                pos <-
-                    [ pos.[0]
-                      pos.[1]
-                      pos.[2] + (x |> int) ]
-            | [ "up"; x ] ->
-                pos <-
-                    [ pos.[0]
-                      pos.[1]
-                      pos.[2] - (x |> int) ]
-            | _ -> ())
-        instructions
-
-    printfn "Part 2: %A" (pos.[0] * pos.[1])
-
-part1 lines
-part2 lines
+part1 ((0, 0), lines) |> printfn "Part 1: %A"
+part2 ((0, 0, 0), lines) |> printfn "Part 2: %A"
