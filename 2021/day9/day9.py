@@ -50,6 +50,27 @@ def group_size(x, y, visited, heightmap):
     return size, visited
 
 
+# functional version, easy to translate to Haskell etc
+def group_size2(x, y, visited: dict[tuple[int, int], bool], heightmap, size=0, direction='initial'):
+    if x in range(len(heightmap[0])) and y in range(len(heightmap)) and not visited[(x, y)] and heightmap[y][x] != 9:
+        match direction:
+            case 'initial':
+                match group_size2(x + 1, y, visited | {(x, y): True}, heightmap, 1, 'right'):
+                    case sr, vr:
+                        match group_size2(x - 1, y, vr, heightmap, 1 + sr, 'left'):
+                            case sl, vl:
+                                match group_size2(x, y + 1, vl, heightmap, 1 + sr + sl, 'down'):
+                                    case sd, vd:
+                                        match group_size2(x, y - 1, vd, heightmap, 1 + sr + sl + sd, 'up'):
+                                            case su, vu:
+                                                return 1 + sr + sl + sd + su, vu
+
+            case _:
+                return group_size2(x, y, visited, heightmap, size, 'initial')
+    else:
+        return 0, visited
+
+
 if __name__ == '__main__':
     with open('in.txt') as file:
         lines = [[int(n) for n in list(line)] for line in file.read().splitlines()]
