@@ -1,4 +1,8 @@
+import operator
 from functools import reduce
+
+MIN_LITERAL_LENGTH = 5
+MIN_PACKET_LENGTH = 11
 
 
 def part1(message: str):
@@ -6,16 +10,7 @@ def part1(message: str):
 
     packets = parse_message(message_binary)
 
-    for packet in packets:
-        if packet.length_type_id == 0:
-            packet.nr_sub_packets = len(packet.sub_packets)
-
-    sum_values = 0
-
-    for packet in packets:
-        sum_values += packet.version_nr
-
-    print('Part 1:', sum_values)
+    print('Part 1:', reduce(operator.add, map(lambda p: p.version_nr, packets)))
     return packets
 
 
@@ -41,7 +36,7 @@ def parse_message(message_binary: str):
     packets = []
     parents = []
 
-    while len(message_binary) > 5:
+    while len(message_binary) > MIN_LITERAL_LENGTH:
         packet = Packet(int(message_binary[:3], 2), int(message_binary[3:6], 2))
         message_binary = message_binary[6:]
 
@@ -56,17 +51,18 @@ def parse_message(message_binary: str):
                 total_length_subp = int(message_binary[:15], 2)
                 message_binary = message_binary[15:]
 
-                if len(message_binary) - total_length_subp < 11:
+                if len(message_binary) - total_length_subp < MIN_PACKET_LENGTH:
                     message_binary = message_binary[:total_length_subp]
             else:
                 nr_subp = int(message_binary[:11], 2)
                 message_binary = message_binary[11:]
                 packet.nr_sub_packets = nr_subp
 
-        if packet.type_id == 4 and parents:
+        if parents:
             while parents:
                 if parents[-1][0].length_type_id == 0 and parents[-1][2] - len(message_binary) <= parents[-1][1]:
                     parents[-1][0].sub_packets.append(packet)
+                    parents[-1][0].nr_sub_packets += 1
                     break
                 elif (parents[-1][0].length_type_id == 1 and
                       len(parents[-1][0].sub_packets) < parents[-1][0].nr_sub_packets):
@@ -74,22 +70,7 @@ def parse_message(message_binary: str):
                     break
                 else:
                     parents.pop()
-        elif packet.type_id != 4 and parents:
-            while parents:
-                if parents[-1][0].length_type_id == 0 and parents[-1][2] - len(message_binary) <= parents[-1][1]:
-                    parents[-1][0].sub_packets.append(packet)
-                    break
-                elif (parents[-1][0].length_type_id == 1 and
-                      len(parents[-1][0].sub_packets) < parents[-1][0].nr_sub_packets):
-                    parents[-1][0].sub_packets.append(packet)
-                    break
-                else:
-                    parents.pop()
-            if packet.length_type_id == 0:
-                parents.append([packet, total_length_subp, len(message_binary)])
-            else:
-                parents.append([packet])
-        elif packet.type_id != 4:
+        if packet.type_id != 4:
             if packet.length_type_id == 0:
                 parents.append([packet, total_length_subp, len(message_binary)])
             else:
@@ -125,25 +106,19 @@ def get_value(packet: Packet):
         case 4:
             return packet.literal_value
         case 0:
-            return sum([get_value(p) for p in packet.sub_packets])
+            return reduce(operator.add, map(get_value, packet.sub_packets))
         case 1:
-            values = [get_value(p) for p in packet.sub_packets]
-            return reduce(lambda a, b: a * b, values)
+            return reduce(operator.mul, map(get_value, packet.sub_packets))
         case 2:
-            values = [get_value(p) for p in packet.sub_packets]
-            return min(values)
+            return min(map(get_value, packet.sub_packets))
         case 3:
-            values = [get_value(p) for p in packet.sub_packets]
-            return max(values)
+            return max(map(get_value, packet.sub_packets))
         case 5:
-            values = [get_value(p) for p in packet.sub_packets]
-            return int(values[0] > values[1])
+            return int(reduce(operator.gt, map(get_value, packet.sub_packets)))
         case 6:
-            values = [get_value(p) for p in packet.sub_packets]
-            return int(values[0] < values[1])
+            return int(reduce(operator.lt, map(get_value, packet.sub_packets)))
         case 7:
-            values = [get_value(p) for p in packet.sub_packets]
-            return int(values[0] == values[1])
+            return int(reduce(operator.eq, map(get_value, packet.sub_packets)))
 
 
 if __name__ == '__main__':
