@@ -5,23 +5,24 @@ def replace_joker(hand: str) -> str:
     max_count = max(Counter(hand).values())
     max_count_card = [el for el in Counter(hand).items() if el[1] == max_count][0][0]
     sorted_hand = ''.join(sorted(hand))
+    hand_no_j = hand.replace('J', '')
 
     if max_count == 4:
         if max_count_card == 'J':
-            max_count_card = [el for el in Counter(hand).items() if el[1] == 1][0][0]
+            max_count_card = [el for el in Counter(hand_no_j).items() if el[1] == 1][0][0]
     elif max_count == 3:
         if max_count_card == 'J':
-            max_count_card = [el for el in Counter(hand).items() if el[1] in [1, 2]][0][0]
+            max_count_card = [el for el in Counter(hand_no_j).items() if el[1] in [1, 2]][0][0]
     elif max_count == 2:
         if 'JJ' in sorted_hand:
-            if max(Counter(hand.replace('J', '')).values()) == 2:
-                max_count_card = [el for el in Counter(hand).items() if el[1] == 2][0][0]
+            if max(Counter(hand_no_j).values()) == 2:
+                max_count_card = [el for el in Counter(hand_no_j).items() if el[1] == 2][0][0]
             else:
-                max_count_card = [el for el in Counter(hand).items() if el[1] == 1][0][0]
+                max_count_card = [el for el in Counter(hand_no_j).items() if el[1] == 1][0][0]
         else:
-            max_count_card = [el for el in Counter(hand).items() if el[1] == 2][0][0]
+            max_count_card = [el for el in Counter(hand_no_j).items() if el[1] == 2][0][0]
     elif max_count == 1:
-        max_count_card = [el for el in Counter(hand.replace('J', '')).items() if el[1] == 1][0][0]
+        max_count_card = [el for el in Counter(hand_no_j).items() if el[1] == 1][0][0]
 
     return hand.replace('J', max_count_card)
 
@@ -74,7 +75,6 @@ if __name__ == '__main__':
 
     print('Part 1:', sum(bid * rank for rank, [_, bid] in enumerate(sorted_hands, 1)))
 
-    # part 2 produces an incorrect result, something is wrong
     sorted_hands_p2 = sorted(hands, key=lambda h: (get_hand_strength(h[0], 2), get_card_strengths(h[0], 2)))
 
     print('Part 2:', sum(bid * rank for rank, [_, bid] in enumerate(sorted_hands_p2, 1)))
