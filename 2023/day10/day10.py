@@ -1,12 +1,3 @@
-from shapely.geometry import Point, Polygon
-
-
-def is_point_inside_polygon(point: tuple[int, int], polygon_coords: list[tuple[int, int]]) -> bool:
-    point = Point(point)
-    polygon = Polygon(polygon_coords)
-    return point.within(polygon)
-
-
 if __name__ == '__main__':
     with open('in.txt') as file:
         lines = file.read().splitlines()
@@ -56,13 +47,14 @@ if __name__ == '__main__':
 
     print('Part 1:', nr_steps // 2)
 
-    # part 2 produces an incorrect result, something is wrong
-    polygon_coords = list((p[1], len(tiles) - p[0] - 1) for p in visited)
     nr_enclosed_tiles = 0
 
     for i in range(len(tiles)):
+        enclosed_flag = False
         for j in range(len(tiles[0])):
-            if tiles[i][j] == '.' and is_point_inside_polygon((j, len(tiles) - i - 1), polygon_coords):
+            if tiles[i][j] in 'S|7F' and (i, j) in visited:
+                enclosed_flag = not enclosed_flag
+            if (i, j) not in visited and enclosed_flag:
                 nr_enclosed_tiles += 1
 
     print('Part 2:', nr_enclosed_tiles)
