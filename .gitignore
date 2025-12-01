@@ -4,3 +4,6 @@
 target
 .fake
 .config
+.python-version
+pyproject.toml
+uv.lock
